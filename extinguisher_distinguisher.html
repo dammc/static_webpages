@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Fire Extinguisher Distinguisher</title>
+</head>
+<body>
+  <h2>Upload an image</h2>
+  <input id="photo" type="file" accept="image/*" />
+  <div id="results"></div>
+
+  <script type="module">
+    import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
+
+    const results = document.getElementById("results");
+
+    // Option A: connect via Space "owner/space" (recommended)
+    const client = await Client.connect("meisterminze/minimal");
+    // Option B: connect via URL (also works sometimes)
+    // const client = await Client.connect("https://meisterminze-minimal.hf.space");
+
+    async function classify(file) {
+      // `img` must match your Gradio function's input component name.
+      // Your HF snippet suggests it is called "img".
+      const res = await client.predict("/classify_image", { img: file });
+      return res.data;
+    }
+
+    document.getElementById("photo").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      results.textContent = "⏳ Classifying...";
+
+      try {
+        const data = await classify(file);
+
+        // Adjust this depending on what your Space returns.
+        // Common patterns:
+        // - data[0] = { label: "...", confidence: 0.xx }
+        // - data[0] = "label"
+        // - data = { label: ..., confidences: [...] }
+        let labelText = "";
+        if (Array.isArray(data) && data[0]?.label && data[0]?.confidence != null) {
+          labelText = `${data[0].label} (${(data[0].confidence * 100).toFixed(2)}%)`;
+        } else {
+          labelText = JSON.stringify(data, null, 2);
+        }
+
+        const imgURL = URL.createObjectURL(file);
+        results.innerHTML = `
+          <img src="${imgURL}" width="300"><br>
+          <pre>${labelText}</pre>
+        `;
+      } catch (err) {
+        results.innerHTML = `<pre style="color:red">Error: ${err?.message || err}</pre>`;
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
