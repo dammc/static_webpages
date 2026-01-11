@@ -1,64 +1,553 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Fire Extinguisher Distinguisher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔥🛋️ Fire Extinguisher Distinguisher</title>
+
   <style>
-    #examples { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0 20px; }
-    .thumb { width: 120px; height: 120px; object-fit: cover; cursor: pointer; border-radius: 10px; border: 1px solid #ddd; padding: 4px; }
-    .thumb:hover { transform: scale(1.02); }
-    #results img { border-radius: 10px; border: 1px solid #ddd; }
+    :root{
+      --bg1:#0b1020;
+      --bg2:#130a2a;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --shadow2: 0 8px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(255,90,0,.20), transparent 60%),
+        radial-gradient(900px 500px at 90% 0%, rgba(100,180,255,.20), transparent 60%),
+        radial-gradient(800px 600px at 60% 110%, rgba(200,0,255,.16), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .confetti{
+      position: fixed; inset: 0;
+      pointer-events:none;
+      opacity: .35;
+      filter: blur(.2px);
+      z-index: 0;
+    }
+    .confetti span{
+      position:absolute;
+      font-size: 22px;
+      animation: drift linear infinite;
+      transform: translate3d(0,0,0);
+    }
+    @keyframes drift{
+      from { transform: translate3d(0, -120px, 0) rotate(0deg); }
+      to   { transform: translate3d(0, calc(100vh + 140px), 0) rotate(360deg); }
+    }
+
+    .wrap{
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .brand{ display:flex; gap: 14px; align-items:center; }
+    .logo{
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,90,0,.9), rgba(255,255,255,.16));
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: var(--shadow2);
+      display:grid;
+      place-items:center;
+      font-size: 26px;
+      transform: rotate(-8deg);
+    }
+    h1{
+      margin:0;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+    .tagline{
+      margin:6px 0 0;
+      color: var(--muted);
+      max-width: 54ch;
+    }
+
+    .pill{
+      align-self:flex-start;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      box-shadow: var(--shadow2);
+      user-select:none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .pill b{ color: var(--text); font-weight: 650; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+      header{ flex-direction:column; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+    .card .head{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+    .card .head h2{ margin:0; font-size: 16px; letter-spacing: .01em; }
+    .card .head .sub{ color: var(--muted2); font-size: 12px; white-space:nowrap; }
+    .card .body{ padding: 16px; }
+
+    .drop{
+      padding: 16px;
+      border-radius: var(--radius2);
+      background: rgba(0,0,0,.16);
+      border: 1px dashed rgba(255,255,255,.20);
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .drop p{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+      max-width: 55ch;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(135deg, rgba(100,180,255,.30), rgba(255,90,0,.22));
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+      font-weight: 650;
+      box-shadow: 0 10px 26px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .btn:active { transform: translateY(0px); filter: brightness(.98); }
+
+    input[type="file"]{ display:none; }
+
+    .meta-row{
+      margin-top: 12px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted2);
+      font-size: 12px;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      padding: 2px 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.85);
+    }
+
+    #examples{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 420px){ #examples{ grid-template-columns: 1fr; } }
+    .thumbWrap{
+      position:relative;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 10px 28px rgba(0,0,0,.28);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .thumbWrap:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .thumb{ width: 100%; height: 140px; object-fit: cover; display:block; filter: saturate(1.05) contrast(1.02); }
+    .thumbLabel{
+      position:absolute;
+      left: 10px; right: 10px; bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 13px;
+      color: rgba(255,255,255,.90);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      align-items:center;
+    }
+    .badge{
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.82);
+      white-space:nowrap;
+    }
+    .selected{ outline: 2px solid rgba(255,255,255,.42); outline-offset: 2px; }
+
+    #results{ display:flex; flex-direction:column; gap: 12px; }
+    .resultCard{
+      background: var(--card2);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .resultTop{ display:flex; align-items:stretch; gap: 0; }
+    .preview{
+      width: 44%;
+      min-height: 240px;
+      background: rgba(0,0,0,.18);
+      border-right: 1px solid rgba(255,255,255,.10);
+      display:grid;
+      place-items:center;
+    }
+    .preview img{ width: 100%; height: 100%; object-fit: cover; display:block; }
+    @media (max-width: 860px){
+      .resultTop{ flex-direction:column; }
+      .preview{ width: 100%; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.10); }
+    }
+
+    .resultMain{
+      padding: 14px 16px;
+      flex: 1;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .resultTitle{ display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; }
+    .resultTitle h3{ margin:0; font-size: 18px; letter-spacing: .01em; }
+    .hint{ margin: 0; color: var(--muted2); font-size: 13px; }
+
+    .bigLabel{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .emoji{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      font-size: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 10px 26px rgba(0,0,0,.20);
+    }
+    .labelLine{ display:flex; flex-direction:column; gap: 2px; min-width: 0; }
+    .labelLine b{
+      font-size: 16px;
+      letter-spacing: .01em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .labelLine span{ font-size: 12px; color: var(--muted2); }
+
+    .meter{ display:flex; flex-direction:column; gap: 8px; }
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+      position:relative;
+    }
+    .fill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,90,0,.85), rgba(120,200,255,.85));
+      box-shadow: 0 0 18px rgba(255,140,0,.25);
+      transition: width .55s ease;
+    }
+    .meterRow{
+      display:flex;
+      justify-content:space-between;
+      color: var(--muted2);
+      font-size: 12px;
+      gap: 10px;
+    }
+    .quip{
+      margin: 0;
+      font-size: 13px;
+      color: rgba(255,255,255,.84);
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .small{ font-size: 12px; color: var(--muted2); }
+    .errorBox{
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,0,80,.12);
+      border: 1px solid rgba(255,0,80,.30);
+      color: rgba(255,255,255,.92);
+      white-space: pre-wrap;
+    }
+
+    .spinner{
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.25);
+      border-top-color: rgba(255,255,255,.85);
+      animation: spin .8s linear infinite;
+      display:inline-block;
+      vertical-align:-4px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer{
+      margin-top: 16px;
+      color: var(--muted2);
+      font-size: 12px;
+      text-align:center;
+    }
+    a{ color: rgba(120,200,255,.95); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
   </style>
 </head>
+
 <body>
-  <h1>The Fire Extinguisher Distinguisher</h1>
-  <p>In some cases of emergency it can be crucial to distinguish a fire extinguisher from a table lamp.
-    Just upload an object image and get to know if it is rather a fire extinguisher or a table lamp.
-  </p>  
-  <h2>Upload an image</h2>
-  <input id="photo" type="file" accept="image/*" />
+  <div class="confetti" aria-hidden="true" id="confetti"></div>
 
-  <h3>…or click an example</h3>
-  <div id="examples"></div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🧯</div>
+        <div>
+          <h1>The Fire Extinguisher Distinguisher</h1>
+          <p class="tagline">
+            In some emergencies it can be crucial to distinguish a <b>fire extinguisher</b> from a <b>table lamp</b>.
+            Upload an image and let our highly scientific meme model judge your object.
+          </p>
+        </div>
+      </div>
 
-  <div id="results"></div>
+      <div class="pill" title="This is a meme app. Please do not use in actual emergencies.">
+        <span>⚠️</span> <b>Meme Mode</b> enabled
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="head">
+          <h2>Upload your suspicious object</h2>
+          <div class="sub">🕵️‍♀️ We will be very opinionated.</div>
+        </div>
+        <div class="body">
+          <div class="drop">
+            <p>
+              Choose a photo (jpg/png). If it’s a lamp but looks like an extinguisher… congratulations, you found modern design.
+            </p>
+            <label class="btn" for="photo">📸 Pick an image</label>
+            <input id="photo" type="file" accept="image/*" />
+          </div>
+
+          <div class="meta-row">
+            <span class="kbd">Tip</span>
+            <span>Click an example on the right if you don’t have an image handy.</span>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <div id="results"></div>
+
+          <footer>
+            Powered by a tiny Space on Hugging Face ·
+            <a href="https://huggingface.co/spaces/meisterminze/minimal" target="_blank" rel="noreferrer">open the Space</a>
+          </footer>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="head">
+          <h2>Example suspects</h2>
+          <div class="sub">Click to classify</div>
+        </div>
+        <div class="body">
+          <div id="examples"></div>
+          <p class="small" style="margin-top:12px">
+            These thumbnails are loaded from the Space repo via <span class="kbd">/resolve</span> URLs.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
 
   <script type="module">
     import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
     const results = document.getElementById("results");
     const examplesDiv = document.getElementById("examples");
+    const photoInput = document.getElementById("photo");
 
-    // ✅ Use resolve/raw URLs (NOT /blob/)
     const EXAMPLES = [
-      {
-        title: "Fire extinguisher (fe.png)",
-        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/fe.png",
-      },
-      {
-        title: "Fire extinguisher (grisou.jpg)",
-        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/grisou.jpg",
-      },
-      {
-        title: "Table lamp (candle.jpg)",
-        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/candle.jpg",
-      },
-      {
-        title: "Table lamp (tl.jpg)",
-        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/tl.jpg",
-      },
+      { title: "Fire extinguisher", tag: "hot 🔥",  url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/fe.png" },
+      { title: "Fire extinguisher", tag: "spicy 🌶️", url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/grisou.jpg" },
+      { title: "Table lamp",       tag: "cozy ✨",  url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/candle.jpg" },
+      { title: "Table lamp",       tag: "vibes 🛋️", url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/tl.jpg" },
     ];
 
-    // Connect to your Space
     const client = await Client.connect("meisterminze/minimal");
 
-    function formatOutput(data) {
-      // Adjust based on your Space output.
-      // Common: [{label, confidence}] or plain string or object
-      if (Array.isArray(data) && data[0]?.label && data[0]?.confidence != null) {
-        return `${data[0].label} (${(data[0].confidence * 100).toFixed(2)}%)`;
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    function normalizeLabel(s) {
+      return String(s || "")
+        .trim()
+        .toLowerCase()
+        .replaceAll("-", "_")
+        .replaceAll(" ", "_");
+    }
+
+    function labelEmoji(label) {
+      const s = normalizeLabel(label);
+      if (s.includes("exting")) return "🧯";
+      if (s.includes("lamp")) return "💡";
+      return "🤔";
+    }
+
+    function quip(label, conf) {
+      const s = normalizeLabel(label);
+      const pct = Math.round(conf * 100);
+      if (s.includes("exting")) {
+        if (pct > 90) return "This is EXTREMELY extinguisher-coded. 🔥 (Please don’t test it.)";
+        if (pct > 70) return "Looks like a fire extinguisher. If it starts glowing… it might be a lamp in denial.";
+        return "Mild extinguisher vibes. Suspiciously decorative though.";
       }
-      return JSON.stringify(data, null, 2);
+      if (s.includes("lamp")) {
+        if (pct > 90) return "Lamp detected. Cozy mode engaged. 🛋️✨";
+        if (pct > 70) return "Probably a table lamp. If it puts out fires, we’ll be impressed.";
+        return "Some lamp energy… but it could be an extinguisher doing cosplay.";
+      }
+      return "The model is… contemplative. 🤔";
+    }
+
+    // ✅ FIXED: robust parsing for Gradio Label outputs
+    function parsePrediction(data) {
+      // Common Gradio patterns:
+      // 1) {label: "...", confidences: [{label:"..", confidence:0.9}, ...]}
+      // 2) [ {label: "...", confidences:[...]} ]
+      // 3) [{label:"...", confidence:0.9}]
+      // 4) "label" (string)
+      // 5) other => keep raw
+
+      let raw = data;
+
+      // If array, often the first element is the actual output object
+      if (Array.isArray(data) && data.length === 1) data = data[0];
+
+      // Case: plain string label
+      if (typeof data === "string") {
+        return { label: data, confidence: 0, raw };
+      }
+
+      // Case: [{label, confidence}] (your old assumption)
+      if (Array.isArray(data) && data[0]?.label && data[0]?.confidence != null) {
+        return { label: data[0].label, confidence: Number(data[0].confidence) || 0, raw };
+      }
+
+      // Case: Label object (most likely)
+      if (data && typeof data === "object") {
+        // If it already has label + confidence directly
+        if (data.label && data.confidence != null) {
+          return { label: data.label, confidence: Number(data.confidence) || 0, raw };
+        }
+
+        // If it has label + confidences array
+        if (data.label && Array.isArray(data.confidences) && data.confidences.length > 0) {
+          // Choose the highest confidence entry (often the first, but let's be safe)
+          const best = data.confidences.reduce((a, b) =>
+            (Number(b?.confidence) || 0) > (Number(a?.confidence) || 0) ? b : a
+          );
+          return {
+            label: best?.label ?? data.label,
+            confidence: Number(best?.confidence) || 0,
+            raw
+          };
+        }
+
+        // Sometimes output is nested even deeper
+        // e.g. { data: {label, confidences} }
+        if (data.data) return parsePrediction(data.data);
+
+        // Fallback: try to find any plausible label
+        const maybeLabel = data.label ?? data.class ?? data.prediction;
+        if (maybeLabel) return { label: maybeLabel, confidence: 0, raw };
+      }
+
+      // Unknown structure
+      return { label: "Unknown", confidence: 0, raw };
     }
 
     async function classify(file) {
@@ -69,60 +558,160 @@
     async function urlToFile(url) {
       const resp = await fetch(url, { cache: "no-store" });
       if (!resp.ok) throw new Error(`Failed to fetch example image: ${resp.status} ${resp.statusText}`);
-
       const blob = await resp.blob();
       const nameFromUrl = url.split("/").pop() || "example.jpg";
       return new File([blob], nameFromUrl, { type: blob.type || "application/octet-stream" });
     }
 
+    function setLoading(previewUrl) {
+      results.innerHTML = `
+        <div class="resultCard">
+          <div class="resultTop">
+            <div class="preview">
+              ${previewUrl ? `<img src="${previewUrl}" alt="preview">` : ""}
+            </div>
+            <div class="resultMain">
+              <div class="resultTitle">
+                <h3><span class="spinner"></span>Consulting the vibes…</h3>
+              </div>
+              <p class="hint">Our tiny AI is looking at pixels and making bold assumptions.</p>
+              <div class="bar"><div class="fill" style="width: 35%"></div></div>
+              <p class="quip">Please hold. We’re distinguishing *very distinguished* objects.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderResult({ label, confidence, raw }, previewUrl) {
+      const pct = Math.max(0, Math.min(100, confidence * 100));
+      const emoji = labelEmoji(label);
+      const joke = quip(label, confidence);
+
+      results.innerHTML = `
+        <div class="resultCard">
+          <div class="resultTop">
+            <div class="preview">
+              <img src="${previewUrl}" alt="Uploaded preview">
+            </div>
+            <div class="resultMain">
+              <div class="resultTitle">
+                <h3>Verdict</h3>
+                <div class="badge">${pct.toFixed(2)}% confidence</div>
+              </div>
+
+              <div class="bigLabel">
+                <div class="emoji" aria-hidden="true">${emoji}</div>
+                <div class="labelLine">
+                  <b>${escapeHtml(label)}</b>
+                  <span>${escapeHtml(joke)}</span>
+                </div>
+              </div>
+
+              <div class="meter">
+                <div class="bar"><div class="fill" style="width:${pct.toFixed(2)}%"></div></div>
+                <div class="meterRow">
+                  <span>“meh”</span>
+                  <span>“absolutely”</span>
+                </div>
+              </div>
+
+              <details>
+                <summary class="small">Show raw model output</summary>
+                <pre class="small" style="white-space:pre-wrap; margin:10px 0 0;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderError(err) {
+      results.innerHTML = `<div class="errorBox">💥 Oops: ${escapeHtml(err?.message || String(err))}</div>`;
+    }
+
     async function runFile(file, previewUrl) {
-      results.textContent = "⏳ Classifying...";
+      setLoading(previewUrl);
       try {
         const data = await classify(file);
-        const labelText = formatOutput(data);
-
-        results.innerHTML = `
-          <img src="${previewUrl}" width="300"><br>
-          <pre>${labelText}</pre>
-        `;
+        const pred = parsePrediction(data);
+        renderResult(pred, previewUrl);
       } catch (err) {
-        results.innerHTML = `<pre style="color:red">Error: ${err?.message || err}</pre>`;
+        renderError(err);
         console.error(err);
       }
     }
 
+    function clearSelectedExamples() {
+      examplesDiv.querySelectorAll(".thumbWrap").forEach(el => el.classList.remove("selected"));
+    }
+
     // Upload handler
-    document.getElementById("photo").addEventListener("change", async (e) => {
+    photoInput.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-
+      clearSelectedExamples();
       const imgURL = URL.createObjectURL(file);
       await runFile(file, imgURL);
-
-      // optional: release object URL later
-      // setTimeout(() => URL.revokeObjectURL(imgURL), 60_000);
     });
 
     // Render thumbnails + click handler
     function renderExamples() {
       EXAMPLES.forEach((ex) => {
+        const wrap = document.createElement("div");
+        wrap.className = "thumbWrap";
+
         const img = document.createElement("img");
         img.src = ex.url;
         img.alt = ex.title;
-        img.title = `Click to classify: ${ex.title}`;
         img.className = "thumb";
 
-        img.addEventListener("click", async () => {
-          // Fetch the image, convert to File, classify it
-          const file = await urlToFile(ex.url);
-          await runFile(file, ex.url); // preview uses URL directly
+        const label = document.createElement("div");
+        label.className = "thumbLabel";
+        label.innerHTML = `<span>${ex.title}</span><span class="badge">${ex.tag}</span>`;
+
+        wrap.appendChild(img);
+        wrap.appendChild(label);
+
+        wrap.addEventListener("click", async () => {
+          clearSelectedExamples();
+          wrap.classList.add("selected");
+          photoInput.value = "";
+
+          try {
+            const file = await urlToFile(ex.url);
+            await runFile(file, ex.url);
+          } catch (err) {
+            renderError(err);
+          }
         });
 
-        examplesDiv.appendChild(img);
+        examplesDiv.appendChild(wrap);
       });
     }
 
+    function spawnConfetti() {
+      const el = document.getElementById("confetti");
+      const emojis = ["🧯","💡","🔥","🛋️","✨","🚨","🤨","🫠"];
+      const n = 18;
+      for (let i = 0; i < n; i++) {
+        const s = document.createElement("span");
+        s.textContent = emojis[i % emojis.length];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 6;
+        const dur = 10 + Math.random() * 14;
+        const size = 16 + Math.random() * 16;
+        s.style.left = `${left}%`;
+        s.style.animationDuration = `${dur}s`;
+        s.style.animationDelay = `${delay}s`;
+        s.style.fontSize = `${size}px`;
+        s.style.opacity = `${0.18 + Math.random() * 0.35}`;
+        el.appendChild(s);
+      }
+    }
+
     renderExamples();
+    spawnConfetti();
   </script>
 </body>
 </html>
