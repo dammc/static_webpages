@@ -3,60 +3,126 @@
 <head>
   <meta charset="utf-8" />
   <title>Fire Extinguisher Distinguisher</title>
+  <style>
+    #examples { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0 20px; }
+    .thumb { width: 120px; height: 120px; object-fit: cover; cursor: pointer; border-radius: 10px; border: 1px solid #ddd; padding: 4px; }
+    .thumb:hover { transform: scale(1.02); }
+    #results img { border-radius: 10px; border: 1px solid #ddd; }
+  </style>
 </head>
 <body>
+  <h1>The Fire Extinguisher Distinguisher</h1>
+  <p>In some cases of emergency it can be crucial to distinguish a fire extinguisher from a table lamp.
+    Just upload an object image and get to know if it is rather a fire extinguisher or a table lamp.
+  </p>  
   <h2>Upload an image</h2>
   <input id="photo" type="file" accept="image/*" />
+
+  <h3>…or click an example</h3>
+  <div id="examples"></div>
+
   <div id="results"></div>
 
   <script type="module">
     import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
     const results = document.getElementById("results");
+    const examplesDiv = document.getElementById("examples");
 
-    // Option A: connect via Space "owner/space" (recommended)
+    // ✅ Use resolve/raw URLs (NOT /blob/)
+    const EXAMPLES = [
+      {
+        title: "Fire extinguisher (fe.png)",
+        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/fe.png",
+      },
+      {
+        title: "Fire extinguisher (grisou.jpg)",
+        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/fire_extinguisher/grisou.jpg",
+      },
+      {
+        title: "Table lamp (candle.jpg)",
+        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/candle.jpg",
+      },
+      {
+        title: "Table lamp (tl.jpg)",
+        url: "https://huggingface.co/spaces/meisterminze/minimal/resolve/main/img/table_lamp/tl.jpg",
+      },
+    ];
+
+    // Connect to your Space
     const client = await Client.connect("meisterminze/minimal");
-    // Option B: connect via URL (also works sometimes)
-    // const client = await Client.connect("https://meisterminze-minimal.hf.space");
+
+    function formatOutput(data) {
+      // Adjust based on your Space output.
+      // Common: [{label, confidence}] or plain string or object
+      if (Array.isArray(data) && data[0]?.label && data[0]?.confidence != null) {
+        return `${data[0].label} (${(data[0].confidence * 100).toFixed(2)}%)`;
+      }
+      return JSON.stringify(data, null, 2);
+    }
 
     async function classify(file) {
-      // `img` must match your Gradio function's input component name.
-      // Your HF snippet suggests it is called "img".
       const res = await client.predict("/classify_image", { img: file });
       return res.data;
     }
 
-    document.getElementById("photo").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+    async function urlToFile(url) {
+      const resp = await fetch(url, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`Failed to fetch example image: ${resp.status} ${resp.statusText}`);
 
+      const blob = await resp.blob();
+      const nameFromUrl = url.split("/").pop() || "example.jpg";
+      return new File([blob], nameFromUrl, { type: blob.type || "application/octet-stream" });
+    }
+
+    async function runFile(file, previewUrl) {
       results.textContent = "⏳ Classifying...";
-
       try {
         const data = await classify(file);
+        const labelText = formatOutput(data);
 
-        // Adjust this depending on what your Space returns.
-        // Common patterns:
-        // - data[0] = { label: "...", confidence: 0.xx }
-        // - data[0] = "label"
-        // - data = { label: ..., confidences: [...] }
-        let labelText = "";
-        if (Array.isArray(data) && data[0]?.label && data[0]?.confidence != null) {
-          labelText = `${data[0].label} (${(data[0].confidence * 100).toFixed(2)}%)`;
-        } else {
-          labelText = JSON.stringify(data, null, 2);
-        }
-
-        const imgURL = URL.createObjectURL(file);
         results.innerHTML = `
-          <img src="${imgURL}" width="300"><br>
+          <img src="${previewUrl}" width="300"><br>
           <pre>${labelText}</pre>
         `;
       } catch (err) {
         results.innerHTML = `<pre style="color:red">Error: ${err?.message || err}</pre>`;
         console.error(err);
       }
+    }
+
+    // Upload handler
+    document.getElementById("photo").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const imgURL = URL.createObjectURL(file);
+      await runFile(file, imgURL);
+
+      // optional: release object URL later
+      // setTimeout(() => URL.revokeObjectURL(imgURL), 60_000);
     });
+
+    // Render thumbnails + click handler
+    function renderExamples() {
+      EXAMPLES.forEach((ex) => {
+        const img = document.createElement("img");
+        img.src = ex.url;
+        img.alt = ex.title;
+        img.title = `Click to classify: ${ex.title}`;
+        img.className = "thumb";
+
+        img.addEventListener("click", async () => {
+          // Fetch the image, convert to File, classify it
+          const file = await urlToFile(ex.url);
+          await runFile(file, ex.url); // preview uses URL directly
+        });
+
+        examplesDiv.appendChild(img);
+      });
+    }
+
+    renderExamples();
   </script>
 </body>
 </html>
